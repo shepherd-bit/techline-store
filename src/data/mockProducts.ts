@@ -26,7 +26,7 @@ export const mockProducts: Product[] = [
         reviewsCount: 420,
         inStock: true,
         description: 'The ultimate iPhone featuring a lightweight titanium design, massive leap in battery life, advanced A-series pro chip, and professional 48MP triple-lens camera system.',
-        images: ['img/smartphones/iphone17-main.jpg', 'img/smartphones/iphone17-angle1.jpg', 'img/smartphones/iphone17-angle2.jpg', 'img/smartphones/iphone17-angle3.jpg', 'img/smartphones/iphone17-angle4.jpg'],
+        images: ['src/assets/smartphones/iphone17-main.jpg', 'img/smartphones/iphone17-angle1.jpg', 'img/smartphones/iphone17-angle2.jpg', 'img/smartphones/iphone17-angle3.jpg', 'img/smartphones/iphone17-angle4.jpg'],
         colors: ['#2C2C2C', '#E3E3E3', '#4A5D4E', '#1C1C1E'],
         isNewArrival: true,
         isFeatured: true
@@ -41,7 +41,7 @@ export const mockProducts: Product[] = [
         reviewsCount: 310,
         inStock: true,
         description: 'Integrated S-Pen powerhouse with an ultra-bright dynamic AMOLED display, AI-driven photography suite, and robust titanium frame.',
-        images: ['img/smartphones/s26-main.jpg', 'img/smartphones/s26-angle1.jpg', 'img/smartphones/s26-angle2.jpg', 'img/smartphones/s26-angle3.jpg', 'img/smartphones/s26-angle4.jpg'],
+        images: ['src/assets/smartphones/s26-main.jpg', 'img/smartphones/s26-angle1.jpg', 'img/smartphones/s26-angle2.jpg', 'img/smartphones/s26-angle3.jpg', 'img/smartphones/s26-angle4.jpg'],
         colors: ['#1A1A1A', '#C5A880', '#2E3B4E'],
         isFeatured: true
     },
@@ -55,7 +55,7 @@ export const mockProducts: Product[] = [
         reviewsCount: 245,
         inStock: true,
         description: 'Powered by Google Tensor processing for seamless generative AI experiences, real-time translation, and award-winning computational photography.',
-        images: ['img/smartphones/pixel10-main.jpg', 'img/smartphones/pixel10-angle1.jpg', 'img/smartphones/pixel10-angle2.jpg', 'img/smartphones/pixel10-angle3.jpg', 'img/smartphones/pixel10-angle4.jpg'],
+        images: ['src/assets/smartphones/pixel10-main.jpg', 'img/smartphones/pixel10-angle1.jpg', 'img/smartphones/pixel10-angle2.jpg', 'img/smartphones/pixel10-angle3.jpg', 'img/smartphones/pixel10-angle4.jpg'],
         colors: ['#333333', '#DFE3EB', '#D4AF37'],
         isNewArrival: true
     },
@@ -68,7 +68,7 @@ export const mockProducts: Product[] = [
         reviewsCount: 180,
         inStock: true,
         description: 'Blazing-fast performance with hyper-charge capability, Fluid AMOLED display, and Hasselblad camera color calibration.',
-        images: ['img/smartphones/oneplus14-main.jpg', 'img/smartphones/oneplus14-angle1.jpg', 'img/smartphones/oneplus14-angle2.jpg', 'img/smartphones/oneplus14-angle3.jpg', 'img/smartphones/oneplus14-angle4.jpg'],
+        images: ['src/assets/smartphones/oneplus14-main.jpg', 'img/smartphones/oneplus14-angle1.jpg', 'img/smartphones/oneplus14-angle2.jpg', 'img/smartphones/oneplus14-angle3.jpg', 'img/smartphones/oneplus14-angle4.jpg'],
         colors: ['#0F0F0F', '#3A6EA5']
     },
     {
