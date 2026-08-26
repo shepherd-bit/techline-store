@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Heart, ShoppingCart } from 'lucide-react';
 import { mockProducts, type Product } from '../../data/mockProducts';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+    cartCount?: number;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ cartCount = 0 }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Product[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -111,6 +115,11 @@ export const Navbar: React.FC = () => {
                         </a>
                         <a href="/cart" className="relative text-black hover:text-gray-600 transition-colors">
                             <ShoppingCart className="w-6 h-6" />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                                    {cartCount}
+                                </span>
+                            )}
                         </a>
                     </div>
 

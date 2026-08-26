@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Heart, Eye, Star, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Heart, Eye, Star, ArrowLeft, ArrowRight, Check, Plus } from 'lucide-react';
 import { mockProducts } from '../../data/mockProducts';
 
-export default function Offers() {
+interface OffersProps {
+    // Expecting the handler to accept the boolean state
+    onCartAction?: (isAdding: boolean) => void;
+}
+
+export default function Offers({ onCartAction }: OffersProps) {
     const offerProducts = mockProducts.slice(0, 4);
-    const [favorites, setFavorites] = useState<number[]>([]);
+    const [favorites, setFavorites] = useState<string[]>([]);
+    
+    // Track the persistent ADDED/REMOVED state for each button individually using string IDs
+    const [addedProductsState, setAddedProductsState] = useState<Map<string, boolean>>(new Map());
 
     const [timeLeft, setTimeLeft] = useState({
         days: 3,
@@ -31,10 +39,28 @@ export default function Offers() {
         return () => clearInterval(timer);
     }, []);
 
-    const toggleFavorite = (id: number) => {
+    const toggleFavorite = (id: string) => {
         setFavorites((prev) =>
             prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
         );
+    };
+
+    const handleCartAction = (id: string) => {
+        // Determine the NEXT state for THIS specific item
+        const currentlyAdded = addedProductsState.get(id) || false;
+        const actionIsNowAdding = !currentlyAdded;
+
+        // 1. Update local state Map for *this specific* product ID instantly
+        setAddedProductsState((prevMap) => {
+            const newMap = new Map(prevMap);
+            newMap.set(id, actionIsNowAdding);
+            return newMap;
+        });
+
+        // 2. Notify App.tsx to update global counter, passing the correct boolean
+        if (onCartAction) {
+            onCartAction(actionIsNowAdding);
+        }
     };
 
     return (
@@ -90,7 +116,11 @@ export default function Offers() {
             {/* Product Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {offerProducts.map((product) => {
-                    const isFavorited = favorites.includes(Number(product.id));
+                    const isFavorited = favorites.includes(product.id);
+                    
+                    // Check persistent state from Map using product.id string directly
+                    const isCurrentlyAdded = addedProductsState.get(product.id) || false;
+                    
                     const productImage = Array.isArray(product.images) ? product.images[0] : (product as any).image;
 
                     return (
@@ -99,14 +129,14 @@ export default function Offers() {
                             <div className="relative bg-[#F5F5F5] rounded-md h-[270px] sm:h-[300px] flex items-center justify-center overflow-hidden shadow-xl shadow-black/15 transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-black/25">
                                 
                                 {/* Discount Badge */}
-                                <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-medium px-3 py-1 rounded">
+                                <span className="absolute top-3 left-3 bg-black text-white text-xs font-medium px-3 py-1 rounded">
                                     {(product as any).discount || '-30%'}
                                 </span>
 
                                 {/* Action Icons */}
                                 <div className="absolute top-3 right-3 flex flex-col space-y-2 z-10">
                                     <button
-                                        onClick={() => toggleFavorite(Number(product.id))}
+                                        onClick={() => toggleFavorite(product.id)}
                                         className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
                                     >
                                         <Heart
@@ -129,9 +159,23 @@ export default function Offers() {
                                     className="max-h-[60%] max-w-[70%] object-contain transition-transform duration-300 group-hover:scale-105"
                                 />
 
-                                {/* Hover-Reveal Add To Cart Button */}
-                                <button className="absolute bottom-0 left-0 w-full bg-black text-white py-2.5 text-sm font-medium translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out flex items-center justify-center space-x-2">
-                                    <span>Add To Cart</span>
+                                {/* Hover-Reveal Toggle Button - Updates based on individual state */}
+                                <button
+                                    onClick={() => handleCartAction(product.id)}
+                                    className={`absolute bottom-0 left-0 w-full py-2.5 text-sm font-medium transition-all duration-300 ease-in-out flex items-center justify-center space-x-2 ${
+                                        isCurrentlyAdded
+                                            ? 'bg-gray-600 text-white translate-y-0' // Dark Gray when added
+                                            : 'bg-black text-white translate-y-full group-hover:translate-y-0 hover:bg-gray-900' // Black on hover when not added
+                                    }`}
+                                >
+                                    {/* Change Icon based on individual state */}
+                                    {isCurrentlyAdded ? (
+                                        <Check className="w-4 h-4 text-white" />
+                                    ) : (
+                                        <Plus className="w-4 h-4 text-white" />
+                                    )}
+                                    {/* Change Text based on individual state */}
+                                    <span>{isCurrentlyAdded ? 'Added To Cart' : 'Add To Cart'}</span>
                                 </button>
                             </div>
 
@@ -139,9 +183,9 @@ export default function Offers() {
                             <div className="mt-4 space-y-1">
                                 <h3 className="font-semibold text-black truncate">{product.name}</h3>
                                 <div className="flex items-center space-x-3">
-                                    <span className="text-red-600 font-semibold">${product.price}</span>
+                                    <span className="text-green-600 font-semibold">${product.price}</span>
                                     {(product as any).originalPrice && (
-                                        <span className="text-gray-400 line-through text-sm">
+                                        <span className="text-red-500 line-through text-sm font-medium">
                                             ${(product as any).originalPrice}
                                         </span>
                                     )}

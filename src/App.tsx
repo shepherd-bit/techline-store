@@ -24,19 +24,34 @@ export default function App() {
   // Simple state to simulate page switching later via links
   const [currentPage, setCurrentPage] = useState<'home' | 'all-products'>('home');
 
+  // Cart count state
+  const [cartCount, setCartCount] = useState<number>(0);
+
+  // Updated handler: now accepts the boolean 'isAdding' parameter
+  const handleCartAction = (isAdding: boolean) => {
+    if (isAdding) {
+        // Increment count if the item was added
+        setCartCount((prev) => prev + 1);
+    } else {
+        // Decrement count if the item was removed
+        setCartCount((prev) => Math.max(0, prev - 1)); // Prevent negative count
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       {/* 1. Quick Sales Bar */}
       <QuickSalesBar />
 
-      {/* 2. Navigation bar */}
-      <Navbar />
+      {/* 2. Navigation bar with dynamic cart count */}
+      <Navbar cartCount={cartCount} />
 
       {/* Main Content Area */}
       {currentPage === 'home' ? (
         <main className="flex-grow">
           <HeroSection />
-          <Offers />
+          {/* Pass the updated handler to Offers */}
+          <Offers onCartAction={handleCartAction} />
           <Categories />
           <Promotion />
           <OurProductsSection />
