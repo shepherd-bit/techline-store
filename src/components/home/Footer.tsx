@@ -5,9 +5,16 @@ export default function Footer() {
         <footer className="bg-black text-white font-sans pt-16 pb-8 border-t border-gray-900">
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-16 border-b border-gray-800">
                 
-                {/* Column 1: Exclusive / Subscribe */}
+                {/* Column 1: Logo / Subscribe */}
                 <div className="space-y-4">
-                    <h2 className="text-2xl font-bold tracking-wider">TechLine</h2>
+                    {/* Logo Image Placeholder */}
+                    <div className="flex items-center">
+                        <img 
+                            src="./TECLINE-white.png" 
+                            alt="TechLine Logo" 
+                            className="h-4 w-auto object-contain"
+                        />
+                    </div>
                     <h3 className="text-lg font-medium">Subscribe</h3>
                     <p className="text-gray-400 text-sm">Get 10% off your first order</p>
                     <div className="relative flex items-center max-w-[240px]">
