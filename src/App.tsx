@@ -12,92 +12,155 @@ import CategoryPage from './pages/CategoryPage';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import PaymentModal from './components/PaymentModal';
+
+export interface CartItem {
+    product: any;
+    quantity: number;
+}
 
 export default function App() {
-  // Navigation state: 'home', 'all-products', 'category', 'product-detail', 'cart', 'checkout'
-  const [currentPage, setCurrentPage] = useState<string>('home');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Smartphones');
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    // Navigation state: 'home', 'all-products', 'category', 'product-detail', 'cart', 'checkout'
+    const [currentPage, setCurrentPage] = useState<string>('home');
+    const [selectedCategory, setSelectedCategory] = useState<string>('Smartphones');
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
-  // Cart count state
-  const [cartCount, setCartCount] = useState<number>(0);
+    // Cart items state: stores actual products and their quantities
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Handler for adding/removing items (supports quantity increments)
-  const handleCartAction = (isAdding: boolean, quantity: number = 1) => {
-    if (isAdding) {
-      setCartCount((prev) => prev + quantity);
-    } else {
-      setCartCount((prev) => Math.max(0, prev - quantity));
-    }
-  };
+    // Compute total badge count dynamically from cart items
+    const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  // Category selection handler
-  const handleSelectCategory = (categoryName: string) => {
-    setSelectedCategory(categoryName);
-    setCurrentPage('category');
-  };
+    // Advanced cart action handler (handles adding, updating quantities, or removing by toggle/uncheck)
+    const handleCartAction = (product: any, isAdding: boolean, quantity: number = 1) => {
+        setCartItems((prevItems) => {
+            const existingIndex = prevItems.findIndex((item) => item.product.id === product.id);
 
-  // Product selection handler
-  const handleSelectProduct = (product: any) => {
-    setSelectedProduct(product);
-    setCurrentPage('product-detail');
-  };
+            if (isAdding) {
+                if (existingIndex > -1) {
+                    // If already in cart, update quantity
+                    const updated = [...prevItems];
+                    updated[existingIndex] = {
+                        ...updated[existingIndex],
+                        quantity: updated[existingIndex].quantity + quantity,
+                    };
+                    return updated;
+                } else {
+                    // Add new item
+                    return [...prevItems, { product, quantity }];
+                }
+            } else {
+                // Removing or unchecking
+                if (existingIndex > -1) {
+                    const updated = [...prevItems];
+                    const newQty = updated[existingIndex].quantity - quantity;
+                    if (newQty <= 0) {
+                        // Remove completely if quantity drops to 0 or uncheck action is fully triggered
+                        return prevItems.filter((item) => item.product.id !== product.id);
+                    } else {
+                        updated[existingIndex] = { ...updated[existingIndex], quantity: newQty };
+                        return updated;
+                    }
+                }
+                return prevItems;
+            }
+        });
+    };
 
-  return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans">
-      {/* 1. Quick Sales Bar */}
-      <QuickSalesBar />
+    // Direct handlers for Cart page UI (quantity updates / item removals)
+    const handleUpdateQuantity = (productId: string, newQuantity: number) => {
+        if (newQuantity <= 0) {
+            setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
+        } else {
+            setCartItems((prev) =>
+                prev.map((item) =>
+                    item.product.id === productId ? { ...item, quantity: newQuantity } : item
+                )
+            );
+        }
+    };
 
-      {/* 2. Navigation bar with dynamic cart count */}
-      <Navbar cartCount={cartCount} />
+    const handleRemoveItem = (productId: string) => {
+        setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
+    };
 
-      {/* Main Content Area Routing */}
-      <main className="flex-grow">
-        {currentPage === 'home' && (
-          <Home 
-            onSelectCategory={handleSelectCategory}
-            onCartAction={(isAdding) => handleCartAction(isAdding, 1)}
-            onViewAllProducts={() => setCurrentPage('all-products')}
-          />
-        )}
+    // Category selection handler
+    const handleSelectCategory = (categoryName: string) => {
+        setSelectedCategory(categoryName);
+        setCurrentPage('category');
+    };
 
-        {currentPage === 'category' && (
-          <CategoryPage 
-            category={selectedCategory}
-            onSelectProduct={handleSelectProduct}
-            onBackToHome={() => setCurrentPage('home')}
-            onAddToCart={(_product) => handleCartAction(true, 1)}
-          />
-        )}
+    // Product selection handler
+    const handleSelectProduct = (product: any) => {
+        setSelectedProduct(product);
+        setCurrentPage('product-detail');
+    };
 
-        {currentPage === 'product-detail' && (
-          <ProductDetails 
-            product={selectedProduct}
-            onBackToHome={() => setCurrentPage('home')}
-            onAddToCart={(_product, quantity) => handleCartAction(true, quantity)}
-          />
-        )}
+    return (
+        <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans">
+            {/* 1. Quick Sales Bar */}
+            <QuickSalesBar />
 
-        {currentPage === 'all-products' && (
-          <AllProducts 
-            onSelectProduct={handleSelectProduct}
-            onBackToHome={() => setCurrentPage('home')}
-            onAddToCart={(_product) => handleCartAction(true, 1)}
-          />
-        )}
+            {/* 2. Navigation bar with dynamic cart count and cart page navigation trigger */}
+            <Navbar 
+                cartCount={cartCount} 
+                onOpenCart={() => setCurrentPage('cart')} 
+            />
 
-        {currentPage === 'cart' && (
-          <Cart />
-        )}
+            {/* Main Content Area Routing */}
+            <main className="flex-grow">
+                {currentPage === 'home' && (
+                    <Home 
+                        onSelectCategory={handleSelectCategory}
+                        onCartAction={(product, isAdding, qty) => handleCartAction(product, isAdding, qty || 1)}
+                        onViewAllProducts={() => setCurrentPage('all-products')}
+                    />
+                )}
 
-        {currentPage === 'checkout' && (
-          <Checkout />
-        )}
-      </main>
+                {currentPage === 'category' && (
+                    <CategoryPage 
+                        category={selectedCategory}
+                        onSelectProduct={handleSelectProduct}
+                        onBackToHome={() => setCurrentPage('home')}
+                        onAddToCart={(product, isAdding, qty) => handleCartAction(product, isAdding ?? true, qty || 1)}
+                    />
+                )}
 
-      {/* Footer */}
-      <Footer />
-    </div>
-  );
+                {currentPage === 'product-detail' && (
+                    <ProductDetails 
+                        product={selectedProduct}
+                        onBackToHome={() => setCurrentPage('home')}
+                        onAddToCart={(product, quantity) => handleCartAction(product, true, quantity)}
+                    />
+                )}
+
+                {currentPage === 'all-products' && (
+                    <AllProducts 
+                        onSelectProduct={handleSelectProduct}
+                        onBackToHome={() => setCurrentPage('home')}
+                        onAddToCart={(product, isAdding, qty) => handleCartAction(product, isAdding ?? true, qty || 1)}
+                    />
+                )}
+
+                {currentPage === 'cart' && (
+                    <Cart 
+                        cartItems={cartItems}
+                        onUpdateQuantity={handleUpdateQuantity}
+                        onRemoveItem={handleRemoveItem}
+                        onReturnToShop={() => setCurrentPage('home')}
+                        onProceedToCheckout={() => setCurrentPage('checkout')}
+                    />
+                )}
+
+                {currentPage === 'checkout' && (
+                    <Checkout 
+                        cartItems={cartItems}
+                        onBackToCart={() => setCurrentPage('cart')}
+                    />
+                )}
+            </main>
+
+            {/* Footer */}
+            <Footer />
+        </div>
+    );
 }

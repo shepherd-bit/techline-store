@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Eye, Star, Check, Plus } from 'lucide-react';
-import { mockProducts } from '../../data/mockProducts';
+import { mockProducts, type Product } from '../../data/mockProducts';
 
 interface OurProductsSectionProps {
-    onCartAction?: (isAdding: boolean) => void;
+    onCartAction?: (product: Product, isAdding: boolean, quantity: number) => void;
     onViewAllProducts?: () => void;
 }
 
@@ -26,7 +26,8 @@ export default function OurProductsSection({ onCartAction, onViewAllProducts }: 
         );
     };
 
-    const handleCartAction = (id: string) => {
+    const handleCartAction = (product: Product) => {
+        const id = product.id;
         const currentlyAdded = addedProductsState.get(id) || false;
         const actionIsNowAdding = !currentlyAdded;
 
@@ -37,9 +38,9 @@ export default function OurProductsSection({ onCartAction, onViewAllProducts }: 
             return newMap;
         });
 
-        // 2. Notify parent component/App to update global counter
+        // 2. Notify parent component/App to update global counter with product, action status, and default quantity 1
         if (onCartAction) {
-            onCartAction(actionIsNowAdding);
+            onCartAction(product, actionIsNowAdding, 1);
         }
     };
 
@@ -106,7 +107,7 @@ export default function OurProductsSection({ onCartAction, onViewAllProducts }: 
 
                                 {/* Interactive Add To Cart Button */}
                                 <button
-                                    onClick={() => handleCartAction(product.id)}
+                                    onClick={() => handleCartAction(product)}
                                     className={`absolute bottom-0 left-0 w-full py-2.5 text-sm font-medium transition-all duration-300 ease-in-out flex items-center justify-center space-x-2 cursor-pointer ${
                                         isCurrentlyAdded
                                             ? 'bg-gray-700 text-white translate-y-0'

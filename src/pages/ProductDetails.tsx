@@ -4,18 +4,18 @@ import { Star, Heart, Truck, RefreshCw, Minus, Plus, ArrowLeft } from 'lucide-re
 interface ProductDetailsProps {
     product: any;
     onBackToHome: () => void;
-    onAddToCart: (product: any, quantity: number) => void;
+    onAddToCart: (product: any, isAdding: boolean, quantity: number) => void;
 }
 
 export default function ProductDetails({ product, onBackToHome, onAddToCart }: ProductDetailsProps) {
     // Fallback if no product is selected yet
     if (!product) {
         return (
-            <div className="w-full max-w-[1400px] mx-auto px-4 py-20 text-center">
+            <div className="w-full max-w-[1400px] mx-auto px-4 py-20 text-center font-sans">
                 <p className="text-gray-500 mb-4">No product selected.</p>
                 <button 
                     onClick={onBackToHome}
-                    className="bg-black text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                    className="bg-black text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors cursor-pointer shadow"
                 >
                     Back to Home
                 </button>
@@ -23,13 +23,15 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
         );
     }
 
-    // State for main focused image, quantity, selected color, and size
+    // State for main focused image, quantity, selected color, size, wishlist, and cart state
     const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
     const [quantity, setQuantity] = useState<number>(1);
     const [selectedColor, setSelectedColor] = useState<string>(product.colors?.[0] || '#white');
     const [selectedSize, setSelectedSize] = useState<string>('M');
+    const [isFavorited, setIsFavorited] = useState<boolean>(false);
+    const [isAddedToCart, setIsAddedToCart] = useState<boolean>(false);
 
-    const images = product.images || [product.image];
+    const images = Array.isArray(product.images) ? product.images : [product.image];
     const currentMainImage = images[selectedImageIndex] || images[0];
 
     const handleQuantityChange = (increment: boolean) => {
@@ -37,6 +39,14 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
             setQuantity((prev) => prev + 1);
         } else {
             setQuantity((prev) => Math.max(1, prev - 1));
+        }
+    };
+
+    const handleCartAction = () => {
+        const newCartState = !isAddedToCart;
+        setIsAddedToCart(newCartState);
+        if (onAddToCart) {
+            onAddToCart(product, newCartState, quantity);
         }
     };
 
@@ -52,7 +62,7 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                     <span>Account</span>
                 </button>
                 <span>/</span>
-                <span className="hover:text-black cursor-pointer">{product.category}</span>
+                <span className="hover:text-black cursor-pointer uppercase tracking-wider text-xs">{product.category}</span>
                 <span>/</span>
                 <span className="text-black font-medium">{product.name}</span>
             </div>
@@ -68,7 +78,7 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                             <button
                                 key={idx}
                                 onClick={() => setSelectedImageIndex(idx)}
-                                className={`w-24 h-24 sm:w-32 sm:h-32 bg-gray-50 rounded-lg p-2 border-2 transition-all flex items-center justify-center cursor-pointer shrink-0 ${
+                                className={`w-24 h-24 sm:w-32 sm:h-32 bg-[#F5F5F5] rounded-lg p-2 border-2 transition-all flex items-center justify-center cursor-pointer shrink-0 shadow-sm ${
                                     selectedImageIndex === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'
                                 }`}
                             >
@@ -78,7 +88,12 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                     </div>
 
                     {/* Main Focused Image Preview */}
-                    <div className="flex-1 bg-gray-50 rounded-xl p-8 flex items-center justify-center h-[400px] sm:h-[500px] border border-gray-100 relative">
+                    <div className="flex-1 bg-[#F5F5F5] rounded-xl p-8 flex items-center justify-center h-[400px] sm:h-[500px] border border-gray-100 relative shadow-md">
+                        {product.isNewArrival && (
+                            <span className="absolute top-4 left-4 bg-[#00FF66] text-black text-xs font-semibold px-2.5 py-1 rounded z-10">
+                                NEW
+                            </span>
+                        )}
                         <img 
                             src={currentMainImage} 
                             alt={product.name} 
@@ -89,13 +104,13 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
 
                 {/* Right Side: Product Details & Purchase Actions */}
                 <div className="lg:col-span-5 flex flex-col">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
                         {product.name}
                     </h1>
 
                     {/* Rating & Stock Status */}
                     <div className="flex items-center space-x-4 mt-3">
-                        <div className="flex items-center text-amber-400">
+                        <div className="flex items-center text-yellow-400">
                             {[...Array(5)].map((_, i) => (
                                 <Star 
                                     key={i} 
@@ -103,18 +118,25 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                                 />
                             ))}
                         </div>
-                        <span className="text-gray-500 text-sm">
+                        <span className="text-gray-500 text-sm font-medium">
                             ({product.reviewsCount || 150} Reviews)
                         </span>
                         <span className="text-gray-300">|</span>
-                        <span className={`text-sm font-medium ${product.inStock !== false ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <span className={`text-sm font-medium ${product.inStock !== false ? 'text-emerald-600' : 'text-red-500'}`}>
                             {product.inStock !== false ? 'In Stock' : 'Out of Stock'}
                         </span>
                     </div>
 
                     {/* Price */}
-                    <div className="text-2xl sm:text-3xl font-semibold text-black mt-4">
-                        ${product.price}.00
+                    <div className="flex items-center space-x-3 mt-4">
+                        <span className="text-2xl sm:text-3xl font-bold text-green-700">
+                            ${product.price}.00
+                        </span>
+                        {product.originalPrice && (
+                            <span className="text-gray-400 line-through text-lg">
+                                ${product.originalPrice}.00
+                            </span>
+                        )}
                     </div>
 
                     {/* Description */}
@@ -125,7 +147,7 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                     {/* Colors Selection */}
                     {product.colors && product.colors.length > 0 && (
                         <div className="flex items-center space-x-4 mt-6">
-                            <span className="text-sm font-medium text-gray-700">Colours:</span>
+                            <span className="text-sm font-medium text-black">Colours:</span>
                             <div className="flex items-center space-x-2">
                                 {product.colors.map((colorHex: string, idx: number) => (
                                     <button
@@ -143,7 +165,7 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
 
                     {/* Size Selection */}
                     <div className="flex items-center space-x-4 mt-6">
-                        <span className="text-sm font-medium text-gray-700">Size:</span>
+                        <span className="text-sm font-medium text-black">Size:</span>
                         <div className="flex items-center space-x-2">
                             {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
                                 <button
@@ -151,7 +173,7 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                                     onClick={() => setSelectedSize(size)}
                                     className={`w-9 h-9 rounded-md border text-sm font-medium transition-colors cursor-pointer flex items-center justify-center ${
                                         selectedSize === size 
-                                            ? 'bg-red-600 text-white border-red-600' 
+                                            ? 'bg-black text-white border-black' 
                                             : 'border-gray-300 text-gray-700 hover:border-black'
                                     }`}
                                 >
@@ -174,37 +196,44 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                             <span className="px-6 font-semibold text-base">{quantity}</span>
                             <button 
                                 onClick={() => handleQuantityChange(true)}
-                                className="px-3 py-3 bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
+                                className="px-3 py-3 bg-green-700 text-white hover:bg-green-800 transition-colors cursor-pointer"
                             >
                                 <Plus className="w-4 h-4" />
                             </button>
                         </div>
 
-                        {/* Buy Now / Add to Cart Button */}
+                        {/* Add to Cart Button */}
                         <button 
-                            onClick={() => onAddToCart(product, quantity)}
-                            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-8 rounded-md transition-colors cursor-pointer shadow-sm text-center"
+                            onClick={handleCartAction}
+                            className={`flex-1 font-medium py-3 px-8 rounded-md transition-colors cursor-pointer shadow-sm text-center ${
+                                isAddedToCart 
+                                    ? 'bg-gray-700 text-white hover:bg-gray-800' 
+                                    : 'bg-black text-white hover:bg-gray-900'
+                            }`}
                         >
-                            Add To Cart
+                            {isAddedToCart ? 'Added To Cart' : 'Add To Cart'}
                         </button>
 
                         {/* Wishlist Button */}
-                        <button className="border border-gray-300 p-3 rounded-md hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center">
-                            <Heart className="w-5 h-5 text-gray-700" />
+                        <button 
+                            onClick={() => setIsFavorited(!isFavorited)}
+                            className="border border-gray-300 p-3 rounded-md hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center"
+                        >
+                            <Heart className={`w-5 h-5 transition-colors ${isFavorited ? 'text-yellow-500 fill-yellow-400' : 'text-gray-700 hover:text-red-500'}`} />
                         </button>
                     </div>
 
                     {/* Delivery & Return Guarantees Box */}
                     <div className="mt-10 border border-gray-200 rounded-md divide-y divide-gray-200">
                         <div className="flex items-start space-x-4 p-4">
-                            <Truck className="w-6 h-6 text-black mt-1" />
+                            <Truck className="w-6 h-6 text-green-700 mt-1" />
                             <div>
                                 <h4 className="font-medium text-sm text-black">Free Delivery</h4>
                                 <p className="text-xs text-gray-500 underline cursor-pointer mt-0.5">Enter your postal code for Delivery Availability</p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-4 p-4">
-                            <RefreshCw className="w-6 h-6 text-black mt-1" />
+                            <RefreshCw className="w-6 h-6 text-green-700 mt-1" />
                             <div>
                                 <h4 className="font-medium text-sm text-black">Return Delivery</h4>
                                 <p className="text-xs text-gray-500 mt-0.5">Free 30 Days Delivery Returns. <span className="underline cursor-pointer">Details</span></p>
