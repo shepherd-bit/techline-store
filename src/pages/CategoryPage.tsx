@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { mockProducts } from '../data/mockProducts';
-import { Star, ShoppingCart, ArrowLeft, Check, Plus } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Check } from 'lucide-react';
 
 interface CategoryPageProps {
     category: string;
