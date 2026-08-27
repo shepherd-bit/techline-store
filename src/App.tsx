@@ -105,6 +105,7 @@ export default function App() {
                         onSelectCategory={handleSelectCategory}
                         onCartAction={(product, isAdding, qty) => handleCartAction(product, isAdding, qty || 1)}
                         onViewAllProducts={() => setCurrentPage('all-products')}
+                        onSelectProduct={handleSelectProduct}
                     />
                 )}
 

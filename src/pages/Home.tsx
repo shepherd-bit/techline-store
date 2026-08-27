@@ -12,13 +12,22 @@ interface HomeProps {
     onSelectCategory: (categoryName: string) => void;
     onCartAction: (product: any, isAdding: boolean, quantity?: number) => void;
     onViewAllProducts: () => void;
+    onSelectProduct: (product: any) => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ onSelectCategory, onCartAction, onViewAllProducts }) => {
+export const Home: React.FC<HomeProps> = ({ 
+    onSelectCategory, 
+    onCartAction, 
+    onViewAllProducts, 
+    onSelectProduct 
+}) => {
     return (
         <main className="home-page">
             <HeroSection />
-            <Offers onCartAction={onCartAction} />
+            <Offers 
+                onCartAction={onCartAction} 
+                onSelectProduct={onSelectProduct} 
+            />
             <Categories onSelectCategory={onSelectCategory} />
             <Promotion />
             <OurProductsSection 

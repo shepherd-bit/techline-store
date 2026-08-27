@@ -5,9 +5,11 @@ import { mockProducts } from '../../data/mockProducts';
 interface OffersProps {
     // Expecting the handler to accept the product, boolean state, and optional quantity
     onCartAction?: (product: any, isAdding: boolean, quantity?: number) => void;
+    // Callback handler to navigate to Product Details view
+    onSelectProduct?: (product: any) => void;
 }
 
-export default function Offers({ onCartAction }: OffersProps) {
+export default function Offers({ onCartAction, onSelectProduct }: OffersProps) {
     const offerProducts = mockProducts.slice(0, 4);
     const [favorites, setFavorites] = useState<string[]>([]);
     
@@ -57,7 +59,7 @@ export default function Offers({ onCartAction }: OffersProps) {
             return newMap;
         });
 
-        // 2. Notify App.tsx to update global counter and cart items, passing the full product and action state
+        // 2. Notify parent component to update global counter and cart items
         if (onCartAction) {
             onCartAction(product, actionIsNowAdding, 1);
         }
@@ -129,15 +131,18 @@ export default function Offers({ onCartAction }: OffersProps) {
                             <div className="relative bg-[#F5F5F5] rounded-md h-[270px] sm:h-[300px] flex items-center justify-center overflow-hidden shadow-xl shadow-black/15 transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-black/25">
                                 
                                 {/* Discount Badge */}
-                                <span className="absolute top-3 left-3 bg-black text-white text-xs font-medium px-3 py-1 rounded">
+                                <span className="absolute top-3 left-3 bg-black text-white text-xs font-medium px-3 py-1 rounded z-10">
                                     {(product as any).discount || '-30%'}
                                 </span>
 
                                 {/* Action Icons */}
                                 <div className="absolute top-3 right-3 flex flex-col space-y-2 z-10">
                                     <button
-                                        onClick={() => toggleFavorite(product.id)}
-                                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleFavorite(product.id);
+                                        }}
+                                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
                                     >
                                         <Heart
                                             className={`w-4 h-4 transition-colors ${
@@ -147,41 +152,56 @@ export default function Offers({ onCartAction }: OffersProps) {
                                             }`}
                                         />
                                     </button>
-                                    <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (onSelectProduct) onSelectProduct(product);
+                                        }}
+                                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
+                                        title="View Details"
+                                    >
                                         <Eye className="w-4 h-4 text-black" />
                                     </button>
                                 </div>
 
-                                {/* Product Image */}
+                                {/* Product Image - Clickable to open details */}
                                 <img
                                     src={productImage}
                                     alt={product.name}
-                                    className="max-h-[60%] max-w-[70%] object-contain transition-transform duration-300 group-hover:scale-105"
+                                    onClick={() => {
+                                        if (onSelectProduct) onSelectProduct(product);
+                                    }}
+                                    className="max-h-[60%] max-w-[70%] object-contain transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                                 />
 
-                                {/* Hover-Reveal Toggle Button - Updates based on individual state */}
+                                {/* Hover-Reveal Toggle Button */}
                                 <button
                                     onClick={() => handleCartActionClick(product)}
-                                    className={`absolute bottom-0 left-0 w-full py-2.5 text-sm font-medium transition-all duration-300 ease-in-out flex items-center justify-center space-x-2 ${
+                                    className={`absolute bottom-0 left-0 w-full py-2.5 text-sm font-medium transition-all duration-300 ease-in-out flex items-center justify-center space-x-2 cursor-pointer ${
                                         isCurrentlyAdded
-                                            ? 'bg-gray-600 text-white translate-y-0' // Dark Gray when added
-                                            : 'bg-black text-white translate-y-full group-hover:translate-y-0 hover:bg-gray-900' // Black on hover when not added
+                                            ? 'bg-gray-600 text-white translate-y-0' 
+                                            : 'bg-black text-white translate-y-full group-hover:translate-y-0 hover:bg-gray-900' 
                                     }`}
                                 >
-                                    {/* Change Icon based on individual state */}
                                     {isCurrentlyAdded ? (
                                         <Check className="w-4 h-4 text-white" />
                                     ) : (
                                         <Plus className="w-4 h-4 text-white" />
                                     )}
-                                    {/* Change Text based on individual state */}
                                     <span>{isCurrentlyAdded ? 'Added To Cart' : 'Add To Cart'}</span>
                                 </button>
                             </div>
 
-                            {/* Product Info */}
+                            {/* Product Info - Clickable Name */}
                             <div className="mt-4 space-y-1">
-                                <h3 className="font-semibold text-black truncate">{product.name}</h3>
+                                <h3 
+                                    onClick={() => {
+                                        if (onSelectProduct) onSelectProduct(product);
+                                    }}
+                                    className="font-semibold text-black truncate hover:text-red-600 transition-colors cursor-pointer"
+                                >
+                                    {product.name}
+                                </h3>
                                 <div className="flex items-center space-x-3">
                                     <span className="text-green-600 font-semibold">${product.price}</span>
                                     {(product as any).originalPrice && (
