@@ -20,10 +20,29 @@ export interface CartItem {
 }
 
 export default function App() {
-    const [currentPage, setCurrentPage] = useState<string>('home');
-    const [selectedCategory, setSelectedCategory] = useState<string>('Smartphones');
-    const [selectedProduct, setSelectedProduct] = useState<any>(null);
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    // Initialize state from sessionStorage or fallbacks so data survives reloads
+    const [currentPage, setCurrentPage] = useState<string>(() => {
+        return window.location.hash.replace('#', '') || 'home';
+    });
+
+    const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+        return sessionStorage.getItem('tecline_selected_category') || 'Smartphones';
+    });
+
+    const [selectedProduct, setSelectedProduct] = useState<any>(() => {
+        const saved = sessionStorage.getItem('tecline_selected_product');
+        return saved ? JSON.parse(saved) : null;
+    });
+
+    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+        const savedCart = sessionStorage.getItem('tecline_cart');
+        return savedCart ? JSON.parse(savedCart) : [];
+    });
+
+    // Sync cart to sessionStorage whenever it changes
+    useEffect(() => {
+        sessionStorage.setItem('tecline_cart', JSON.stringify(cartItems));
+    }, [cartItems]);
 
     // 1. Sync state with browser history & handle Back/Forward buttons
     useEffect(() => {
@@ -35,11 +54,6 @@ export default function App() {
                 setCurrentPage('home');
             }
         };
-
-        // Set initial page based on URL hash on load
-        if (window.location.hash) {
-            handlePopState();
-        }
 
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
@@ -99,11 +113,13 @@ export default function App() {
 
     const handleSelectCategory = (categoryName: string) => {
         setSelectedCategory(categoryName);
+        sessionStorage.setItem('tecline_selected_category', categoryName);
         changePage('category');
     };
 
     const handleSelectProduct = (product: any) => {
         setSelectedProduct(product);
+        sessionStorage.setItem('tecline_selected_product', JSON.stringify(product));
         changePage('product-detail');
     };
 
