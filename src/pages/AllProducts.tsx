@@ -33,7 +33,7 @@ export default function AllProducts({ onSelectProduct, onBackToHome, onAddToCart
             {/* Products Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {mockProducts.map((product) => {
-                    const primaryImage = product.images?.[0] || product.image;
+                    const primaryImage = product.images?.[0] || product.images[0];
 
                     return (
                         <div 
