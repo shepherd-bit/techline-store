@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Eye, Star, ArrowLeft, ArrowRight, Check, Plus } from 'lucide-react';
+import { Heart, Eye, Star, Check, Plus } from 'lucide-react';
 import { mockProducts } from '../../data/mockProducts';
 
 interface OurProductsSectionProps {
@@ -56,20 +56,10 @@ export default function OurProductsSection({ onCartAction }: OurProductsSectionP
                         Explore Our Products
                     </h2>
                 </div>
-
-                {/* Carousel / Navigation Arrows */}
-                <div className="flex items-center space-x-3 mt-4 md:mt-0">
-                    <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center transition-colors">
-                        <ArrowRight className="w-5 h-5" />
-                    </button>
-                </div>
             </div>
 
             {/* Products Grid: 4 columns x 2 rows */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12">
                 {products.map((product) => {
                     const isFavorited = favorites.includes(product.id);
                     const isCurrentlyAdded = addedProductsState.get(product.id) || false;
@@ -87,11 +77,11 @@ export default function OurProductsSection({ onCartAction }: OurProductsSectionP
                             {/* Image Container */}
                             <div className="relative w-full h-[280px] bg-[#F5F5F5] rounded-lg flex items-center justify-center overflow-hidden p-6 shadow-md">
                                 {/* New Badge */}
-                                {product.isNew && (
+                                {(product as any).isNew && (
                                     <span className="absolute top-3 left-3 bg-[#00FF66] text-black text-xs font-semibold px-2.5 py-1 rounded z-10">
                                         NEW
-                                    </span>
-                                )}
+                                    </span> 
+                                 )}
 
                                 {/* Action Buttons (Wishlist & Quick View) */}
                                 <div className="absolute top-3 right-3 flex flex-col space-y-2 z-10">
@@ -179,6 +169,26 @@ export default function OurProductsSection({ onCartAction }: OurProductsSectionP
                         </motion.div>
                     );
                 })}
+            </div>
+
+            {/* View All Button with Heartbeat Scaling Animation & Double Width */}
+            <div className="flex justify-center mt-8">
+                <motion.div
+                    animate={{ scale: [1, 1.06, 1] }}
+                    transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    className="w-full max-w-md"
+                >
+                    <a
+                        href="/all-products"
+                        className="block w-full bg-black text-white text-center font-medium py-4 rounded-md shadow-lg hover:bg-gray-900 transition-colors"
+                    >
+                        View All Products
+                    </a>
+                </motion.div>
             </div>
         </section>
     );
