@@ -1,5 +1,5 @@
 import React from 'react';
-import QuickSalesBar from '../components/home/QuickSalesBar';
+
 import HeroSection from '../components/home/HeroSection';
 import Categories from '../components/home/Categories';
 import NewArrivals from '../components/home/NewArrivals';
@@ -15,7 +15,6 @@ interface HomeProps {
 export const Home: React.FC<HomeProps> = ({ onSelectCategory, onCartAction }) => {
     return (
         <main className="home-page">
-            <QuickSalesBar />
             <HeroSection />
             <Categories onSelectCategory={onSelectCategory} />
             <NewArrivals />

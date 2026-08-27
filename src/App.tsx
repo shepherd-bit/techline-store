@@ -1,15 +1,9 @@
 import { useState } from 'react';
 
-// Home Sub-components
+// Home Sub-components & Page
 import QuickSalesBar from './components/home/QuickSalesBar';
 import Navbar from './components/home/Navbar';
-import HeroSection from './components/home/HeroSection';
-import Offers from './components/home/Offers';
-import Categories from './components/home/Categories';
-import Promotion from './components/home/Promotion';
-import OurProductsSection from './components/home/OurProductsSection';
-import NewArrivals from './components/home/NewArrivals';
-import ServiceGuarantees from './components/home/ServiceGuarantees';
+import Home from './pages/Home';
 import Footer from './components/home/Footer';
 
 // Pages & Modals
@@ -23,18 +17,18 @@ import PaymentModal from './components/PaymentModal';
 export default function App() {
   // Navigation state: 'home', 'all-products', 'category', 'product-detail', 'cart', 'checkout'
   const [currentPage, setCurrentPage] = useState<string>('home');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Phones');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Smartphones');
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   // Cart count state
   const [cartCount, setCartCount] = useState<number>(0);
 
-  // Handler for adding/removing items
-  const handleCartAction = (isAdding: boolean) => {
+  // Handler for adding/removing items (supports quantity increments)
+  const handleCartAction = (isAdding: boolean, quantity: number = 1) => {
     if (isAdding) {
-      setCartCount((prev) => prev + 1);
+      setCartCount((prev) => prev + quantity);
     } else {
-      setCartCount((prev) => Math.max(0, prev - 1));
+      setCartCount((prev) => Math.max(0, prev - quantity));
     }
   };
 
@@ -61,15 +55,10 @@ export default function App() {
       {/* Main Content Area Routing */}
       <main className="flex-grow">
         {currentPage === 'home' && (
-          <>
-            <HeroSection />
-            <Offers onCartAction={handleCartAction} />
-            <Categories onSelectCategory={handleSelectCategory} />
-            <Promotion />
-            <OurProductsSection onCartAction={handleCartAction} />
-            <NewArrivals />
-            <ServiceGuarantees />
-          </>
+          <Home 
+            onSelectCategory={handleSelectCategory}
+            onCartAction={(isAdding) => handleCartAction(isAdding, 1)}
+          />
         )}
 
         {currentPage === 'category' && (
@@ -77,7 +66,7 @@ export default function App() {
             category={selectedCategory}
             onSelectProduct={handleSelectProduct}
             onBackToHome={() => setCurrentPage('home')}
-            onAddToCart={() => handleCartAction(true)}
+            onAddToCart={(product) => handleCartAction(true, 1)}
           />
         )}
 
@@ -85,7 +74,7 @@ export default function App() {
           <ProductDetails 
             product={selectedProduct}
             onBackToHome={() => setCurrentPage('home')}
-            onAddToCart={() => handleCartAction(true)}
+            onAddToCart={(_product, quantity) => handleCartAction(true, quantity)}
           />
         )}
 
