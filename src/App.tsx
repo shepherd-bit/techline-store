@@ -54,7 +54,8 @@ export default function App() {
           <Offers onCartAction={handleCartAction} />
           <Categories />
           <Promotion />
-          <OurProductsSection />
+          {/* Pass the updated handler to OurProductsSection */}
+          <OurProductsSection onCartAction={handleCartAction} />
           <NewArrivals />
           <ServiceGuarantees />
         </main>
