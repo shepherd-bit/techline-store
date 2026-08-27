@@ -58,6 +58,7 @@ export default function App() {
           <Home 
             onSelectCategory={handleSelectCategory}
             onCartAction={(isAdding) => handleCartAction(isAdding, 1)}
+            onViewAllProducts={() => setCurrentPage('all-products')}
           />
         )}
 
@@ -66,7 +67,7 @@ export default function App() {
             category={selectedCategory}
             onSelectProduct={handleSelectProduct}
             onBackToHome={() => setCurrentPage('home')}
-            onAddToCart={(product) => handleCartAction(true, 1)}
+            onAddToCart={(_product) => handleCartAction(true, 1)}
           />
         )}
 
@@ -79,7 +80,11 @@ export default function App() {
         )}
 
         {currentPage === 'all-products' && (
-          <AllProducts />
+          <AllProducts 
+            onSelectProduct={handleSelectProduct}
+            onBackToHome={() => setCurrentPage('home')}
+            onAddToCart={(_product) => handleCartAction(true, 1)}
+          />
         )}
 
         {currentPage === 'cart' && (

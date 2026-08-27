@@ -11,16 +11,20 @@ import ServiceGuarantees from '../components/home/ServiceGuarantees';
 interface HomeProps {
     onSelectCategory: (categoryName: string) => void;
     onCartAction: (isAdding: boolean) => void;
+    onViewAllProducts: () => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ onSelectCategory, onCartAction }) => {
+export const Home: React.FC<HomeProps> = ({ onSelectCategory, onCartAction, onViewAllProducts }) => {
     return (
         <main className="home-page">
             <HeroSection />
             <Offers onCartAction={onCartAction} />
             <Categories onSelectCategory={onSelectCategory} />
             <Promotion />
-            <OurProductsSection onCartAction={onCartAction} />
+            <OurProductsSection 
+                onCartAction={onCartAction} 
+                onViewAllProducts={onViewAllProducts} 
+            />
             <NewArrivals />
             <ServiceGuarantees />
         </main>

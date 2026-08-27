@@ -5,9 +5,10 @@ import { mockProducts } from '../../data/mockProducts';
 
 interface OurProductsSectionProps {
     onCartAction?: (isAdding: boolean) => void;
+    onViewAllProducts?: () => void;
 }
 
-export default function OurProductsSection({ onCartAction }: OurProductsSectionProps) {
+export default function OurProductsSection({ onCartAction, onViewAllProducts }: OurProductsSectionProps) {
     // Select 8 random or featured products from mockProducts
     const [products] = useState(() => {
         const shuffled = [...mockProducts].sort(() => 0.5 - Math.random());
@@ -81,17 +82,17 @@ export default function OurProductsSection({ onCartAction }: OurProductsSectionP
                                     <span className="absolute top-3 left-3 bg-[#00FF66] text-black text-xs font-semibold px-2.5 py-1 rounded z-10">
                                         NEW
                                     </span> 
-                                 )}
+                                )}
 
                                 {/* Action Buttons (Wishlist & Quick View) */}
                                 <div className="absolute top-3 right-3 flex flex-col space-y-2 z-10">
                                     <button 
                                         onClick={() => toggleFavorite(product.id)}
-                                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
                                     >
                                         <Heart className={`w-4 h-4 transition-colors ${isFavorited ? 'text-yellow-500 fill-yellow-400' : 'text-black hover:text-red-500'}`} />
                                     </button>
-                                    <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                                    <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer">
                                         <Eye className="w-4 h-4 text-black" />
                                     </button>
                                 </div>
@@ -106,7 +107,7 @@ export default function OurProductsSection({ onCartAction }: OurProductsSectionP
                                 {/* Interactive Add To Cart Button */}
                                 <button
                                     onClick={() => handleCartAction(product.id)}
-                                    className={`absolute bottom-0 left-0 w-full py-2.5 text-sm font-medium transition-all duration-300 ease-in-out flex items-center justify-center space-x-2 ${
+                                    className={`absolute bottom-0 left-0 w-full py-2.5 text-sm font-medium transition-all duration-300 ease-in-out flex items-center justify-center space-x-2 cursor-pointer ${
                                         isCurrentlyAdded
                                             ? 'bg-gray-700 text-white translate-y-0'
                                             : 'bg-black text-white translate-y-full group-hover:translate-y-0 hover:bg-gray-900'
@@ -182,12 +183,12 @@ export default function OurProductsSection({ onCartAction }: OurProductsSectionP
                     }}
                     className="w-full max-w-md"
                 >
-                    <a
-                        href="/all-products"
-                        className="block w-full bg-black text-white text-center font-medium py-4 rounded-md shadow-lg hover:bg-gray-900 transition-colors"
+                    <button
+                        onClick={onViewAllProducts}
+                        className="block w-full bg-black text-white text-center font-medium py-4 rounded-md shadow-lg hover:bg-gray-900 transition-colors cursor-pointer"
                     >
                         View All Products
-                    </a>
+                    </button>
                 </motion.div>
             </div>
         </section>
