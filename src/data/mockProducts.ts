@@ -81,7 +81,7 @@ export const mockProducts: Product[] = [
         reviewsCount: 135,
         inStock: true,
         description: 'Professional optical lens architecture co-engineered with Leica, delivering stunning depth and true-to-life color reproduction.',
-        images: ['img/smartphones/xiaomi-main.jpg', 'img/smartphones/xiaomi-angle1.jpg', 'img/smartphones/xiaomi-angle2.jpg', 'img/smartphones/xiaomi-angle3.jpg', 'img/smartphones/xiaomi-angle4.jpg'],
+        images: ['src/assets/smartphones/xiaomi-main.jpg', 'img/smartphones/xiaomi-angle1.jpg', 'img/smartphones/xiaomi-angle2.jpg', 'img/smartphones/xiaomi-angle3.jpg', 'img/smartphones/xiaomi-angle4.jpg'],
         colors: ['#F5F5F7', '#111111']
     },
     {

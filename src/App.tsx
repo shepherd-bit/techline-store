@@ -12,7 +12,7 @@ import NewArrivals from './components/home/NewArrivals';
 import ServiceGuarantees from './components/home/ServiceGuarantees';
 import Footer from './components/home/Footer';
 
-// Pages & Modals (for future routing or state switching)
+// Pages & Modals
 import AllProducts from './pages/AllProducts';
 import CategoryPage from './pages/CategoryPage';
 import ProductDetails from './pages/ProductDetails';
@@ -21,49 +21,88 @@ import Checkout from './pages/Checkout';
 import PaymentModal from './components/PaymentModal';
 
 export default function App() {
-  // Simple state to simulate page switching later via links
-  const [currentPage, setCurrentPage] = useState<'home' | 'all-products'>('home');
+  // Navigation state: 'home', 'all-products', 'category', 'product-detail', 'cart', 'checkout'
+  const [currentPage, setCurrentPage] = useState<string>('home');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Phones');
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   // Cart count state
   const [cartCount, setCartCount] = useState<number>(0);
 
-  // Updated handler: now accepts the boolean 'isAdding' parameter
+  // Handler for adding/removing items
   const handleCartAction = (isAdding: boolean) => {
     if (isAdding) {
-        // Increment count if the item was added
-        setCartCount((prev) => prev + 1);
+      setCartCount((prev) => prev + 1);
     } else {
-        // Decrement count if the item was removed
-        setCartCount((prev) => Math.max(0, prev - 1)); // Prevent negative count
+      setCartCount((prev) => Math.max(0, prev - 1));
     }
   };
 
+  // Category selection handler
+  const handleSelectCategory = (categoryName: string) => {
+    setSelectedCategory(categoryName);
+    setCurrentPage('category');
+  };
+
+  // Product selection handler
+  const handleSelectProduct = (product: any) => {
+    setSelectedProduct(product);
+    setCurrentPage('product-detail');
+  };
+
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans">
       {/* 1. Quick Sales Bar */}
       <QuickSalesBar />
 
       {/* 2. Navigation bar with dynamic cart count */}
       <Navbar cartCount={cartCount} />
 
-      {/* Main Content Area */}
-      {currentPage === 'home' ? (
-        <main className="flex-grow">
-          <HeroSection />
-          {/* Pass the updated handler to Offers */}
-          <Offers onCartAction={handleCartAction} />
-          <Categories />
-          <Promotion />
-          {/* Pass the updated handler to OurProductsSection */}
-          <OurProductsSection onCartAction={handleCartAction} />
-          <NewArrivals />
-          <ServiceGuarantees />
-        </main>
-      ) : (
-        <AllProducts />
-      )}
+      {/* Main Content Area Routing */}
+      <main className="flex-grow">
+        {currentPage === 'home' && (
+          <>
+            <HeroSection />
+            <Offers onCartAction={handleCartAction} />
+            <Categories onSelectCategory={handleSelectCategory} />
+            <Promotion />
+            <OurProductsSection onCartAction={handleCartAction} />
+            <NewArrivals />
+            <ServiceGuarantees />
+          </>
+        )}
 
-      {/* 10. Footer */}
+        {currentPage === 'category' && (
+          <CategoryPage 
+            category={selectedCategory}
+            onSelectProduct={handleSelectProduct}
+            onBackToHome={() => setCurrentPage('home')}
+            onAddToCart={() => handleCartAction(true)}
+          />
+        )}
+
+        {currentPage === 'product-detail' && (
+          <ProductDetails 
+            product={selectedProduct}
+            onBackToHome={() => setCurrentPage('home')}
+            onAddToCart={() => handleCartAction(true)}
+          />
+        )}
+
+        {currentPage === 'all-products' && (
+          <AllProducts />
+        )}
+
+        {currentPage === 'cart' && (
+          <Cart />
+        )}
+
+        {currentPage === 'checkout' && (
+          <Checkout />
+        )}
+      </main>
+
+      {/* Footer */}
       <Footer />
     </div>
   );

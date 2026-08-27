@@ -7,15 +7,20 @@ import Offers from '../components/home/Offers';
 import OurProductsSection from '../components/home/OurProductsSection';
 import Promotion from '../components/home/Promotion';
 
-export const Home: React.FC = () => {
+interface HomeProps {
+    onSelectCategory: (categoryName: string) => void;
+    onCartAction: (isAdding: boolean) => void;
+}
+
+export const Home: React.FC<HomeProps> = ({ onSelectCategory, onCartAction }) => {
     return (
         <main className="home-page">
             <QuickSalesBar />
             <HeroSection />
-            <Categories />
+            <Categories onSelectCategory={onSelectCategory} />
             <NewArrivals />
-            <Offers />
-            <OurProductsSection />
+            <Offers onCartAction={onCartAction} />
+            <OurProductsSection onCartAction={onCartAction} />
             <Promotion />
         </main>
     );
