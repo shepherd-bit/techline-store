@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import type { CartItem } from '../App';
 
-
 interface CartProps {
     cartItems: CartItem[];
     onUpdateQuantity: (productId: string, newQuantity: number) => void;
