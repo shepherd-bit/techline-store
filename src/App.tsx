@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Home Sub-components & Page
 import QuickSalesBar from './components/home/QuickSalesBar';
@@ -19,30 +20,49 @@ export interface CartItem {
 }
 
 export default function App() {
-    // Navigation state: 'home', 'all-products', 'category', 'product-detail', 'cart', 'checkout'
     const [currentPage, setCurrentPage] = useState<string>('home');
     const [selectedCategory, setSelectedCategory] = useState<string>('Smartphones');
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
-    // Cart items state: stores actual products and their quantities
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-    // Automatically scroll to top whenever the page/view changes
+    // 1. Sync state with browser history & handle Back/Forward buttons
+    useEffect(() => {
+        const handlePopState = () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                setCurrentPage(hash);
+            } else {
+                setCurrentPage('home');
+            }
+        };
+
+        // Set initial page based on URL hash on load
+        if (window.location.hash) {
+            handlePopState();
+        }
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    // Helper wrapper to change pages AND update browser history hash
+    const changePage = (page: string) => {
+        setCurrentPage(page);
+        window.location.hash = page;
+    };
+
+    // Automatically scroll to top whenever the page changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [currentPage]);
 
-    // Compute total badge count dynamically from cart items
     const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-    // Advanced cart action handler (handles adding, updating quantities, or removing by toggle/uncheck)
     const handleCartAction = (product: any, isAdding: boolean, quantity: number = 1) => {
         setCartItems((prevItems) => {
             const existingIndex = prevItems.findIndex((item) => item.product.id === product.id);
-
             if (isAdding) {
                 if (existingIndex > -1) {
-                    // If already in cart, update quantity
                     const updated = [...prevItems];
                     updated[existingIndex] = {
                         ...updated[existingIndex],
@@ -50,11 +70,9 @@ export default function App() {
                     };
                     return updated;
                 } else {
-                    // Add new item
                     return [...prevItems, { product, quantity }];
                 }
             } else {
-                // Removing or unchecking entirely
                 if (existingIndex > -1) {
                     return prevItems.filter((item) => item.product.id !== product.id);
                 }
@@ -63,7 +81,6 @@ export default function App() {
         });
     };
 
-    // Direct handlers for Cart page UI (quantity updates / item removals)
     const handleUpdateQuantity = (productId: string, newQuantity: number) => {
         if (newQuantity <= 0) {
             setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
@@ -80,84 +97,88 @@ export default function App() {
         setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
     };
 
-    // Category selection handler
     const handleSelectCategory = (categoryName: string) => {
         setSelectedCategory(categoryName);
-        setCurrentPage('category');
+        changePage('category');
     };
 
-    // Product selection handler
     const handleSelectProduct = (product: any) => {
         setSelectedProduct(product);
-        setCurrentPage('product-detail');
+        changePage('product-detail');
     };
 
     return (
         <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans">
-            {/* 1. Quick Sales Bar */}
             <QuickSalesBar />
 
-            {/* 2. Navigation bar with dynamic cart count and cart page navigation trigger */}
             <Navbar 
                 cartCount={cartCount} 
-                onOpenCart={() => setCurrentPage('cart')} 
+                onOpenCart={() => changePage('cart')} 
             />
 
-            {/* Main Content Area Routing */}
-            <main className="flex-grow">
-                {currentPage === 'home' && (
-                    <Home 
-                        onSelectCategory={handleSelectCategory}
-                        onCartAction={(product, isAdding, qty) => handleCartAction(product, isAdding, qty || 1)}
-                        onViewAllProducts={() => setCurrentPage('all-products')}
-                        onSelectProduct={handleSelectProduct}
-                    />
-                )}
+            <main className="flex-grow overflow-hidden">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={currentPage}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    >
+                        {currentPage === 'home' && (
+                            <Home 
+                                onSelectCategory={handleSelectCategory}
+                                onCartAction={(product, isAdding, qty) => handleCartAction(product, isAdding, qty || 1)}
+                                onViewAllProducts={() => changePage('all-products')}
+                                onSelectProduct={handleSelectProduct}
+                            />
+                        )}
 
-                {currentPage === 'category' && (
-                    <CategoryPage 
-                        category={selectedCategory}
-                        onSelectProduct={handleSelectProduct}
-                        onBackToHome={() => setCurrentPage('home')}
-                        onAddToCart={(product, isAdding, qty) => handleCartAction(product, isAdding ?? true, qty || 1)}
-                    />
-                )}
+                        {currentPage === 'category' && (
+                            <CategoryPage 
+                                category={selectedCategory}
+                                onSelectProduct={handleSelectProduct}
+                                onBackToHome={() => changePage('home')}
+                                onAddToCart={(product, isAdding, qty) => handleCartAction(product, isAdding ?? true, qty || 1)}
+                            />
+                        )}
 
-                {currentPage === 'product-detail' && (
-                    <ProductDetails 
-                        product={selectedProduct}
-                        onBackToHome={() => setCurrentPage('home')}
-                        onAddToCart={(product, isAdding, quantity) => handleCartAction(product, isAdding, quantity)}
-                    />
-                )}
+                        {currentPage === 'product-detail' && (
+                            <ProductDetails 
+                                product={selectedProduct}
+                                onBackToHome={() => changePage('home')}
+                                onAddToCart={(product, isAdding, quantity) => handleCartAction(product, isAdding, quantity)}
+                            />
+                        )}
 
-                {currentPage === 'all-products' && (
-                    <AllProducts 
-                        onSelectProduct={handleSelectProduct}
-                        onBackToHome={() => setCurrentPage('home')}
-                        onAddToCart={(product, isAdding, qty) => handleCartAction(product, isAdding ?? true, qty || 1)}
-                    />
-                )}
+                        {currentPage === 'all-products' && (
+                            <AllProducts 
+                                onSelectProduct={handleSelectProduct}
+                                onBackToHome={() => changePage('home')}
+                                onAddToCart={(product, isAdding, qty) => handleCartAction(product, isAdding ?? true, qty || 1)}
+                            />
+                        )}
 
-                {currentPage === 'cart' && (
-                    <Cart 
-                        cartItems={cartItems}
-                        onUpdateQuantity={handleUpdateQuantity}
-                        onRemoveItem={handleRemoveItem}
-                        onReturnToShop={() => setCurrentPage('home')}
-                        onProceedToCheckout={() => setCurrentPage('checkout')}
-                    />
-                )}
+                        {currentPage === 'cart' && (
+                            <Cart 
+                                cartItems={cartItems}
+                                onUpdateQuantity={handleUpdateQuantity}
+                                onRemoveItem={handleRemoveItem}
+                                onReturnToShop={() => changePage('home')}
+                                onProceedToCheckout={() => changePage('checkout')}
+                            />
+                        )}
 
-                {currentPage === 'checkout' && (
-                    <Checkout 
-                        cartItems={cartItems}
-                        onBackToCart={() => setCurrentPage('cart')}
-                    />
-                )}
+                        {currentPage === 'checkout' && (
+                            <Checkout 
+                                cartItems={cartItems}
+                                onBackToCart={() => changePage('cart')}
+                            />
+                        )}
+                    </motion.div>
+                </AnimatePresence>
             </main>
 
-            {/* Footer */}
             <Footer />
         </div>
     );
