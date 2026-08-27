@@ -20,7 +20,6 @@ export default function ServiceGuarantees() {
         },
     ];
 
-    
     return (
         <section className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-16 font-sans">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
