@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Home Sub-components & Page
 import QuickSalesBar from './components/home/QuickSalesBar';
@@ -26,6 +26,11 @@ export default function App() {
 
     // Cart items state: stores actual products and their quantities
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+    // Automatically scroll to top whenever the page/view changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, [currentPage]);
 
     // Compute total badge count dynamically from cart items
     const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
