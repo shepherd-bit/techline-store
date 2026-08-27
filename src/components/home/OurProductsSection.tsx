@@ -6,9 +6,10 @@ import { mockProducts, type Product } from '../../data/mockProducts';
 interface OurProductsSectionProps {
     onCartAction?: (product: Product, isAdding: boolean, quantity: number) => void;
     onViewAllProducts?: () => void;
+    onSelectProduct?: (product: Product) => void;
 }
 
-export default function OurProductsSection({ onCartAction, onViewAllProducts }: OurProductsSectionProps) {
+export default function OurProductsSection({ onCartAction, onViewAllProducts, onSelectProduct }: OurProductsSectionProps) {
     // Select 8 random or featured products from mockProducts
     const [products] = useState(() => {
         const shuffled = [...mockProducts].sort(() => 0.5 - Math.random());
@@ -93,16 +94,20 @@ export default function OurProductsSection({ onCartAction, onViewAllProducts }: 
                                     >
                                         <Heart className={`w-4 h-4 transition-colors ${isFavorited ? 'text-yellow-500 fill-yellow-400' : 'text-black hover:text-red-500'}`} />
                                     </button>
-                                    <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer">
+                                    <button 
+                                        onClick={() => onSelectProduct && onSelectProduct(product)}
+                                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
+                                    >
                                         <Eye className="w-4 h-4 text-black" />
                                     </button>
                                 </div>
 
-                                {/* Product Image */}
+                                {/* Product Image - Clickable to open details */}
                                 <img 
                                     src={productImage} 
                                     alt={product.name} 
-                                    className="max-h-[180px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                                    onClick={() => onSelectProduct && onSelectProduct(product)}
+                                    className="max-h-[180px] w-auto object-contain transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                                 />
 
                                 {/* Interactive Add To Cart Button */}
@@ -125,7 +130,10 @@ export default function OurProductsSection({ onCartAction, onViewAllProducts }: 
 
                             {/* Product Info */}
                             <div className="mt-4 flex flex-col space-y-1.5">
-                                <h3 className="font-semibold text-black text-base line-clamp-1">
+                                <h3 
+                                    onClick={() => onSelectProduct && onSelectProduct(product)}
+                                    className="font-semibold text-black text-base line-clamp-1 cursor-pointer hover:text-green-700 transition-colors"
+                                >
                                     {product.name}
                                 </h3>
                                 

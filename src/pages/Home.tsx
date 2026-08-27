@@ -32,7 +32,8 @@ export const Home: React.FC<HomeProps> = ({
             <Promotion />
             <OurProductsSection 
                 onCartAction={onCartAction} 
-                onViewAllProducts={onViewAllProducts} 
+                onViewAllProducts={onViewAllProducts}
+                onSelectProduct={onSelectProduct} 
             />
             <NewArrivals />
             <ServiceGuarantees />
