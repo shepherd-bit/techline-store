@@ -10,6 +10,7 @@ interface CartProps {
     onProceedToCheckout: () => void;
 }
 
+
 export default function Cart({
     cartItems,
     onUpdateQuantity,
