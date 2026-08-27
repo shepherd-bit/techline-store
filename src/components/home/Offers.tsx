@@ -3,8 +3,8 @@ import { Heart, Eye, Star, ArrowLeft, ArrowRight, Check, Plus } from 'lucide-rea
 import { mockProducts } from '../../data/mockProducts';
 
 interface OffersProps {
-    // Expecting the handler to accept the boolean state
-    onCartAction?: (isAdding: boolean) => void;
+    // Expecting the handler to accept the product, boolean state, and optional quantity
+    onCartAction?: (product: any, isAdding: boolean, quantity?: number) => void;
 }
 
 export default function Offers({ onCartAction }: OffersProps) {
@@ -45,21 +45,21 @@ export default function Offers({ onCartAction }: OffersProps) {
         );
     };
 
-    const handleCartAction = (id: string) => {
+    const handleCartActionClick = (product: any) => {
         // Determine the NEXT state for THIS specific item
-        const currentlyAdded = addedProductsState.get(id) || false;
+        const currentlyAdded = addedProductsState.get(product.id) || false;
         const actionIsNowAdding = !currentlyAdded;
 
         // 1. Update local state Map for *this specific* product ID instantly
         setAddedProductsState((prevMap) => {
             const newMap = new Map(prevMap);
-            newMap.set(id, actionIsNowAdding);
+            newMap.set(product.id, actionIsNowAdding);
             return newMap;
         });
 
-        // 2. Notify App.tsx to update global counter, passing the correct boolean
+        // 2. Notify App.tsx to update global counter and cart items, passing the full product and action state
         if (onCartAction) {
-            onCartAction(actionIsNowAdding);
+            onCartAction(product, actionIsNowAdding, 1);
         }
     };
 
@@ -161,7 +161,7 @@ export default function Offers({ onCartAction }: OffersProps) {
 
                                 {/* Hover-Reveal Toggle Button - Updates based on individual state */}
                                 <button
-                                    onClick={() => handleCartAction(product.id)}
+                                    onClick={() => handleCartActionClick(product)}
                                     className={`absolute bottom-0 left-0 w-full py-2.5 text-sm font-medium transition-all duration-300 ease-in-out flex items-center justify-center space-x-2 ${
                                         isCurrentlyAdded
                                             ? 'bg-gray-600 text-white translate-y-0' // Dark Gray when added

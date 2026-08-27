@@ -10,7 +10,7 @@ import ServiceGuarantees from '../components/home/ServiceGuarantees';
 
 interface HomeProps {
     onSelectCategory: (categoryName: string) => void;
-    onCartAction: (isAdding: boolean) => void;
+    onCartAction: (product: any, isAdding: boolean, quantity?: number) => void;
     onViewAllProducts: () => void;
 }
 
