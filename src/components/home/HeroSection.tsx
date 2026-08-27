@@ -9,7 +9,6 @@ interface CarouselSlide {
     discount: string;
     image: string;
     link: string;
-    // Added an icon property for each slide
     icon: React.ReactNode;
 }
 
@@ -77,12 +76,12 @@ export const HeroSection: React.FC = () => {
     }, []);
 
     const categories = [
-        { name: 'Smartphones', path: '/category/Smartphones' },
-        { name: 'Computers', path: '/category/Computers' },
-        { name: 'Smartwatches', path: '/category/Smartwatches' },
-        { name: 'Cameras', path: '/category/Cameras' },
-        { name: 'Headphones', path: '/category/Headphones' },
-        { name: 'Gaming', path: '/category/Gaming' },
+        { name: 'Smartphones' },
+        { name: 'Computers' },
+        { name: 'Smartwatches' },
+        { name: 'Cameras' },
+        { name: 'Headphones' },
+        { name: 'Gaming' },
     ];
 
     const slideVariants = {
@@ -95,12 +94,11 @@ export const HeroSection: React.FC = () => {
         <section className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
             <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-                {/* Left Side: Tech Categories List with Bulge & Underline Animation */}
-                <div className="w-full lg:w-1/5 border-r border-gray-200 pr-6 hidden lg:flex flex-col space-y-3">
+                {/* Left Side: Tech Categories List (Unclickable Text with Hover Animation) */}
+                <div className="w-full lg:w-1/5 border-r border-gray-200 pr-6 hidden lg:flex flex-col space-y-3 cursor-default">
                     {categories.map((cat, idx) => (
-                        <motion.a
+                        <motion.div
                             key={idx}
-                            href={cat.path}
                             className="relative text-black font-medium py-1.5 inline-block w-fit"
                             whileHover={{ x: 8 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -112,7 +110,7 @@ export const HeroSection: React.FC = () => {
                                 whileHover={{ scaleX: 1 }}
                                 transition={{ duration: 0.3, ease: 'easeOut' }}
                             />
-                        </motion.a>
+                        </motion.div>
                     ))}
                 </div>
 
