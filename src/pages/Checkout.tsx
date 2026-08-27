@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import PaymentModal from '../components/PaymentModal';
 
 interface Product {
     id: string | number;
@@ -17,7 +18,7 @@ interface CartItem {
 interface CheckoutProps {
     cartItems: CartItem[];
     onBackToCart: () => void;
-    onOrderSuccess?: () => void; // Optional callback to clear cart in App.tsx
+    onOrderSuccess?: () => void;
 }
 
 interface BillingFormData {
@@ -57,6 +58,7 @@ export default function Checkout({ cartItems, onBackToCart, onOrderSuccess }: Ch
 
     const [paymentMethod, setPaymentMethod] = useState<'bank' | 'cash'>('bank');
     const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -70,8 +72,10 @@ export default function Checkout({ cartItems, onBackToCart, onOrderSuccess }: Ch
     const shipping = 0; 
     const total = subtotal + shipping;
 
-    const handlePlaceOrder = (e: React.FormEvent) => {
+    const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Validate required billing fields first
         if (!formData.firstName || !formData.streetAddress || !formData.townCity || !formData.phoneNumber || !formData.emailAddress) {
             alert('Please fill in all required billing fields.');
             return;
@@ -83,6 +87,16 @@ export default function Checkout({ cartItems, onBackToCart, onOrderSuccess }: Ch
             localStorage.removeItem(STORAGE_KEY);
         }
 
+        // Branch based on payment method
+        if (paymentMethod === 'bank') {
+            setIsPaymentModalOpen(true);
+        } else {
+            // Cash on delivery completes instantly
+            finalizeOrder();
+        }
+    };
+
+    const finalizeOrder = () => {
         setIsOrderPlaced(true);
         if (onOrderSuccess) {
             onOrderSuccess();
@@ -134,7 +148,7 @@ export default function Checkout({ cartItems, onBackToCart, onOrderSuccess }: Ch
                 Billing Details
             </h1>
 
-            <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <form onSubmit={handleFormSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
                 
                 {/* Left Side: Billing Form Fields */}
                 <div className="lg:col-span-6 space-y-6">
@@ -336,6 +350,17 @@ export default function Checkout({ cartItems, onBackToCart, onOrderSuccess }: Ch
                 </div>
 
             </form>
+
+            {/* Payment Modal Component */}
+            <PaymentModal 
+                totalAmount={total}
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                onSuccess={() => {
+                    setIsPaymentModalOpen(false);
+                    finalizeOrder();
+                }}
+            />
         </div>
     );
 }
