@@ -74,17 +74,20 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
                 <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4">
                     {/* Vertical Thumbnails */}
                     <div className="flex sm:flex-col gap-4 overflow-x-auto sm:overflow-visible">
-                        {images.map((imgUrl: string, idx: number) => (
-                            <button
-                                key={idx}
-                                onClick={() => setSelectedImageIndex(idx)}
-                                className={`w-24 h-24 sm:w-32 sm:h-32 bg-[#F5F5F5] rounded-lg p-2 border-2 transition-all flex items-center justify-center cursor-pointer shrink-0 shadow-sm ${
-                                    selectedImageIndex === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'
-                                }`}
-                            >
-                                <img src={imgUrl} alt={`${product.name} thumbnail ${idx}`} className="h-full w-full object-contain" />
-                            </button>
-                        ))}
+                        {images.slice(1).map((imgUrl: string, idx: number) => {
+                            const actualIndex = idx + 1; // Offset index because we sliced the first item
+                            return (
+                                <button
+                                    key={actualIndex}
+                                    onClick={() => setSelectedImageIndex(actualIndex)}
+                                    className={`w-24 h-24 sm:w-32 sm:h-32 bg-[#F5F5F5] rounded-lg p-2 border-2 transition-all flex items-center justify-center cursor-pointer shrink-0 shadow-sm ${
+                                        selectedImageIndex === actualIndex ? 'border-black' : 'border-gray-200 hover:border-gray-400'
+                                    }`}
+                                >
+                                    <img src={imgUrl} alt={`${product.name} thumbnail ${actualIndex}`} className="h-full w-full object-contain" />
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {/* Main Focused Image Preview */}

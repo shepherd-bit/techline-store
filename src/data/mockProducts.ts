@@ -26,7 +26,7 @@ export const mockProducts: Product[] = [
         reviewsCount: 420,
         inStock: true,
         description: 'The ultimate iPhone featuring a lightweight titanium design, massive leap in battery life, advanced A-series pro chip, and professional 48MP triple-lens camera system.',
-        images: ['src/assets/smartphones/iphone17-main.jpg', 'img/smartphones/iphone17-angle1.jpg', 'img/smartphones/iphone17-angle2.jpg', 'img/smartphones/iphone17-angle3.jpg', 'img/smartphones/iphone17-angle4.jpg'],
+        images: ['src/assets/smartphones/iphone17-main.jpg', 'src/assets/smartphones/iphone17-angle1.jpg', 'src/assets/smartphones/iphone17-angle2.jpg', 'src/assets/smartphones/iphone17-angle3.jpg', 'src/assets/smartphones/iphone17-angle4.jpg'],
         colors: ['#2C2C2C', '#E3E3E3', '#4A5D4E', '#1C1C1E'],
         isNewArrival: true,
         isFeatured: true
