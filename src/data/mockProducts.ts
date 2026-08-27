@@ -93,7 +93,7 @@ export const mockProducts: Product[] = [
         reviewsCount: 95,
         inStock: true,
         description: 'Built for creators with a 4K 120Hz HDR OLED cinematic display, professional Alpha camera controls, and optical zoom lens.',
-        images: ['img/smartphones/xperia-main.jpg', 'img/smartphones/xperia-angle1.jpg', 'img/smartphones/xperia-angle2.jpg', 'img/smartphones/xperia-angle3.jpg', 'img/smartphones/xperia-angle4.jpg'],
+        images: ['src/assets/smartphones/xperia-main.jpg', 'img/smartphones/xperia-angle1.jpg', 'img/smartphones/xperia-angle2.jpg', 'img/smartphones/xperia-angle3.jpg', 'img/smartphones/xperia-angle4.jpg'],
         colors: ['#222222', '#3A3A3C']
     },
 
