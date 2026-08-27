@@ -49,17 +49,9 @@ export default function App() {
                     return [...prevItems, { product, quantity }];
                 }
             } else {
-                // Removing or unchecking
+                // Removing or unchecking entirely
                 if (existingIndex > -1) {
-                    const updated = [...prevItems];
-                    const newQty = updated[existingIndex].quantity - quantity;
-                    if (newQty <= 0) {
-                        // Remove completely if quantity drops to 0 or uncheck action is fully triggered
-                        return prevItems.filter((item) => item.product.id !== product.id);
-                    } else {
-                        updated[existingIndex] = { ...updated[existingIndex], quantity: newQty };
-                        return updated;
-                    }
+                    return prevItems.filter((item) => item.product.id !== product.id);
                 }
                 return prevItems;
             }
@@ -129,7 +121,7 @@ export default function App() {
                     <ProductDetails 
                         product={selectedProduct}
                         onBackToHome={() => setCurrentPage('home')}
-                        onAddToCart={(product, quantity) => handleCartAction(product, true, quantity)}
+                        onAddToCart={(product, isAdding, quantity) => handleCartAction(product, isAdding, quantity)}
                     />
                 )}
 
