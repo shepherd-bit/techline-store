@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { mockProducts } from './data/mockProducts';
 
 // Home Sub-components & Page
 import QuickSalesBar from './components/home/QuickSalesBar';
@@ -117,10 +118,16 @@ export default function App() {
         changePage('category');
     };
 
-    const handleSelectProduct = (product: any) => {
-        setSelectedProduct(product);
-        sessionStorage.setItem('tecline_selected_product', JSON.stringify(product));
-        changePage('product-detail');
+    const handleSelectProduct = (productOrId: any) => {
+        let product = productOrId;
+        if (typeof productOrId === 'string' || typeof productOrId === 'number') {
+            product = mockProducts.find((p) => p.id === productOrId);
+        }
+        if (product) {
+            setSelectedProduct(product);
+            sessionStorage.setItem('tecline_selected_product', JSON.stringify(product));
+            changePage('product-detail');
+        }
     };
 
     return (
@@ -130,6 +137,7 @@ export default function App() {
             <Navbar 
                 cartCount={cartCount} 
                 onOpenCart={() => changePage('cart')} 
+                onSelectProduct={handleSelectProduct}
             />
 
             <main className="flex-grow overflow-hidden">

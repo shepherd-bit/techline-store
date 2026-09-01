@@ -1,39 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Heart, ShoppingCart } from 'lucide-react';
-import { mockProducts, type Product } from '../../data/mockProducts';
+import { mockProducts } from '../../data/mockProducts';
 
 interface NavbarProps {
     cartCount?: number;
     onOpenCart?: () => void;
+    onSelectProduct?: (productId: string | number) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ cartCount = 0, onOpenCart }) => {
+export const Navbar: React.FC<NavbarProps> = ({ cartCount = 0, onOpenCart, onSelectProduct }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<Product[]>([]);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (searchQuery.trim() === '') {
-            setSearchResults([]);
-            setIsDropdownOpen(false);
-        } else {
-            const query = searchQuery.toLowerCase();
-            const filtered = mockProducts.filter(
-                (product) =>
-                    product.name.toLowerCase().includes(query) ||
-                    product.category.toLowerCase().includes(query) ||
-                    product.description.toLowerCase().includes(query)
-            );
-            setSearchResults(filtered);
-            setIsDropdownOpen(true);
-        }
-    }, [searchQuery]);
+    // Derive search results directly from searchQuery during render (no useEffect needed)
+    const trimmedQuery = searchQuery.trim().toLowerCase();
+    const searchResults = trimmedQuery === '' ? [] : mockProducts.filter(
+        (product) =>
+            product.name.toLowerCase().includes(trimmedQuery) ||
+            product.category.toLowerCase().includes(trimmedQuery) ||
+            product.description.toLowerCase().includes(trimmedQuery)
+    );
+    const isDropdownOpen = trimmedQuery !== '';
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-                setIsDropdownOpen(false);
+                setSearchQuery('');
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -87,18 +79,24 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount = 0, onOpenCart }) => 
                             <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg max-h-80 overflow-y-auto z-50">
                                 {searchResults.length > 0 ? (
                                     searchResults.map((product) => (
-                                        <a
+                                        <div
                                             key={product.id}
-                                            href={`/product/${product.id}`}
-                                            className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors"
-                                            onClick={() => setIsDropdownOpen(false)}
+                                            onClick={() => {
+                                                setSearchQuery('');
+                                                if (onSelectProduct) {
+                                                    onSelectProduct(product.id);
+                                                } else {
+                                                    window.location.hash = `/product/${product.id}`;
+                                                }
+                                            }}
+                                            className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors cursor-pointer"
                                         >
                                             <div>
                                                 <p className="text-sm font-medium text-black">{product.name}</p>
                                                 <span className="text-xs text-gray-500">{product.category}</span>
                                             </div>
                                             <span className="text-xs font-semibold text-black">${product.price}</span>
-                                        </a>
+                                        </div>
                                     ))
                                 ) : (
                                     <div className="px-4 py-3 text-sm text-gray-500 text-center">

@@ -1,13 +1,48 @@
 import { useState } from 'react';
 import { Star, Heart, Truck, RefreshCw, Minus, Plus, ArrowLeft } from 'lucide-react';
 
+export interface Product {
+    id?: string | number;
+    name: string;
+    price: number;
+    originalPrice?: number;
+    category?: string;
+    image?: string;
+    images?: string[];
+    description?: string;
+    rating?: number;
+    reviewsCount?: number;
+    inStock?: boolean;
+    isNewArrival?: boolean;
+    colors?: string[];
+}
+
 interface ProductDetailsProps {
-    product: any;
+    product: Product | null;
     onBackToHome: () => void;
-    onAddToCart: (product: any, isAdding: boolean, quantity: number) => void;
+    onAddToCart: (product: Product, isAdding: boolean, quantity: number) => void;
 }
 
 export default function ProductDetails({ product, onBackToHome, onAddToCart }: ProductDetailsProps) {
+    // State for main focused image, quantity, selected color, size, wishlist, and cart state
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+    const [quantity, setQuantity] = useState<number>(1);
+    const [selectedColor, setSelectedColor] = useState<string>(product?.colors?.[0] || '#white');
+    const [selectedSize, setSelectedSize] = useState<string>('M');
+    const [isFavorited, setIsFavorited] = useState<boolean>(false);
+    const [isAddedToCart, setIsAddedToCart] = useState<boolean>(false);
+
+    // Track product changes during render to safely reset state without cascading effect triggers
+    const [prevProductId, setPrevProductId] = useState<string | number | undefined>(product?.id);
+    if (product?.id !== prevProductId) {
+        setPrevProductId(product?.id);
+        setSelectedImageIndex(0);
+        setQuantity(1);
+        setSelectedColor(product?.colors?.[0] || '#white');
+        setSelectedSize('M');
+        setIsAddedToCart(false);
+    }
+
     // Fallback if no product is selected yet
     if (!product) {
         return (
@@ -23,15 +58,7 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
         );
     }
 
-    // State for main focused image, quantity, selected color, size, wishlist, and cart state
-    const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
-    const [quantity, setQuantity] = useState<number>(1);
-    const [selectedColor, setSelectedColor] = useState<string>(product.colors?.[0] || '#white');
-    const [selectedSize, setSelectedSize] = useState<string>('M');
-    const [isFavorited, setIsFavorited] = useState<boolean>(false);
-    const [isAddedToCart, setIsAddedToCart] = useState<boolean>(false);
-
-    const images = Array.isArray(product.images) ? product.images : [product.image];
+    const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image || ''];
     const currentMainImage = images[selectedImageIndex] || images[0];
 
     const handleQuantityChange = (increment: boolean) => {
