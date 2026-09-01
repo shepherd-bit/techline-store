@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mockProducts } from './data/mockProducts';
+import { mockProducts, type Product } from './data/mockProducts';
 
 // Home Sub-components & Page
 import QuickSalesBar from './components/home/QuickSalesBar';
@@ -16,12 +16,11 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 
 export interface CartItem {
-    product: any;
+    product: Product;
     quantity: number;
 }
 
 export default function App() {
-    // Initialize state from sessionStorage or fallbacks so data survives reloads
     const [currentPage, setCurrentPage] = useState<string>(() => {
         return window.location.hash.replace('#', '') || 'home';
     });
@@ -30,7 +29,7 @@ export default function App() {
         return sessionStorage.getItem('tecline_selected_category') || 'Smartphones';
     });
 
-    const [selectedProduct, setSelectedProduct] = useState<any>(() => {
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
         const saved = sessionStorage.getItem('tecline_selected_product');
         return saved ? JSON.parse(saved) : null;
     });
@@ -40,40 +39,32 @@ export default function App() {
         return savedCart ? JSON.parse(savedCart) : [];
     });
 
-    // Sync cart to sessionStorage whenever it changes
     useEffect(() => {
         sessionStorage.setItem('tecline_cart', JSON.stringify(cartItems));
     }, [cartItems]);
 
-    // 1. Sync state with browser history & handle Back/Forward buttons
     useEffect(() => {
         const handlePopState = () => {
             const hash = window.location.hash.replace('#', '');
-            if (hash) {
-                setCurrentPage(hash);
-            } else {
-                setCurrentPage('home');
-            }
+            setCurrentPage(hash || 'home');
         };
 
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
-    // Helper wrapper to change pages AND update browser history hash
     const changePage = (page: string) => {
         setCurrentPage(page);
         window.location.hash = page;
     };
 
-    // Automatically scroll to top whenever the page changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [currentPage]);
 
     const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-    const handleCartAction = (product: any, isAdding: boolean, quantity: number = 1) => {
+    const handleCartAction = (product: Product, isAdding: boolean, quantity: number = 1) => {
         setCartItems((prevItems) => {
             const existingIndex = prevItems.findIndex((item) => item.product.id === product.id);
             if (isAdding) {
@@ -84,9 +75,8 @@ export default function App() {
                         quantity: updated[existingIndex].quantity + quantity,
                     };
                     return updated;
-                } else {
-                    return [...prevItems, { product, quantity }];
                 }
+                return [...prevItems, { product, quantity }];
             } else {
                 if (existingIndex > -1) {
                     return prevItems.filter((item) => item.product.id !== product.id);
@@ -96,7 +86,7 @@ export default function App() {
         });
     };
 
-    const handleUpdateQuantity = (productId: string, newQuantity: number) => {
+    const handleUpdateQuantity = (productId: string | number, newQuantity: number) => {
         if (newQuantity <= 0) {
             setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
         } else {
@@ -108,7 +98,7 @@ export default function App() {
         }
     };
 
-    const handleRemoveItem = (productId: string) => {
+    const handleRemoveItem = (productId: string | number) => {
         setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
     };
 
@@ -118,8 +108,8 @@ export default function App() {
         changePage('category');
     };
 
-    const handleSelectProduct = (productOrId: any) => {
-        let product = productOrId;
+    const handleSelectProduct = (productOrId: Product | string | number) => {
+        let product: Product | undefined = typeof productOrId === 'object' ? productOrId : undefined;
         if (typeof productOrId === 'string' || typeof productOrId === 'number') {
             product = mockProducts.find((p) => p.id === productOrId);
         }
