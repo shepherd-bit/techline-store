@@ -1,21 +1,6 @@
 import { useState } from 'react';
 import { Star, Heart, Truck, RefreshCw, Minus, Plus, ArrowLeft } from 'lucide-react';
-
-export interface Product {
-    id?: string | number;
-    name: string;
-    price: number;
-    originalPrice?: number;
-    category?: string;
-    image?: string;
-    images?: string[];
-    description?: string;
-    rating?: number;
-    reviewsCount?: number;
-    inStock?: boolean;
-    isNewArrival?: boolean;
-    colors?: string[];
-}
+import { type Product } from '../data/mockProducts';
 
 interface ProductDetailsProps {
     product: Product | null;
@@ -58,7 +43,7 @@ export default function ProductDetails({ product, onBackToHome, onAddToCart }: P
         );
     }
 
-    const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image || ''];
+    const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.images?.[0] || ''];
     const currentMainImage = images[selectedImageIndex] || images[0];
 
     const handleQuantityChange = (increment: boolean) => {
